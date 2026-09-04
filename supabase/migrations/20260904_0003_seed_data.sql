@@ -37,7 +37,7 @@ from d, (values
 
   ('commercial','commercial.customer_language','Akamai is prepared to develop competitive displacement economics based on validated delivery, application, API-security, services, and contract-transition requirements.','<=320 chars','customer_safe_draft'),
   ('commercial','commercial.conditions','','Conditions to display when approved with conditions','customer_safe_draft'),
-  ('commercial','commercial.internal_guidance','Model approximately $30K–$40K per month. Final economics depend on traffic, request volume, FQDNs, DNS zones, application and API scope, support, services, term, and contract timing. Delayed billing, overlap support, transition credits, or buyout consideration require approval.','Internal only — never customer-facing.','internal_only'),
+  ('commercial','commercial.internal_guidance','Modeled monthly economics live only in deal_internal_assumptions. Final economics depend on traffic, request volume, FQDNs, DNS zones, application and API scope, support, services, term, and contract timing. Delayed billing, overlap support, transition credits, or buyout consideration require approval.','Internal only — never customer-facing. Numeric range is stored in deal_internal_assumptions.monthly_modeled_range.','internal_only'),
 
   ('migration','migration.customer_language','Akamai will design a phased transition plan intended to minimize Welltory engineering effort, validate performance and security before cutover, and preserve clear rollback options until agreed acceptance criteria are met.','<=320 chars','customer_safe_draft'),
   ('migration','migration.conditions','','Conditions','customer_safe_draft'),

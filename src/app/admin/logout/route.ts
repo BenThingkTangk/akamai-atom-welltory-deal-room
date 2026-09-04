@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { headers } from 'next/headers';
 import { getServerSupabase } from '@/lib/supabase/server';
+import { originFromHeaders } from '@/lib/origin';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const sb = getServerSupabase();
   await sb.auth.signOut();
-  return NextResponse.redirect(new URL('/admin/login', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'));
+  const base = originFromHeaders(headers());
+  return NextResponse.redirect(new URL('/admin/login', base));
 }

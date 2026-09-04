@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getServerSupabase } from '@/lib/supabase/server';
+import { getPublicDealId } from '@/lib/publicDealLookup';
 import { BriefingView } from '@/components/Briefing';
 import type { PublishedBriefingPayload } from '@/lib/types';
 
@@ -17,14 +18,14 @@ export const metadata: Metadata = {
  * Never queries internal tables.
  */
 export default async function BriefingPage() {
-  const sb = getServerSupabase();
-  const { data: deal } = await sb.from('deals').select('id').eq('slug', 'welltory').single();
-  if (!deal) return <Unavailable />;
+  const dealId = await getPublicDealId('welltory');
+  if (!dealId) return <Unavailable />;
 
+  const sb = getServerSupabase();
   const { data: published } = await sb
     .from('published_briefing')
     .select('snapshot, updated_at')
-    .eq('deal_id', deal.id)
+    .eq('deal_id', dealId)
     .maybeSingle();
 
   if (!published?.snapshot) return <Unavailable />;

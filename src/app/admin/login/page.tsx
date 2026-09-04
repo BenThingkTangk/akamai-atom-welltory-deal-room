@@ -31,6 +31,11 @@ export default function AdminLoginPage({
             This account does not have admin access.
           </p>
         )}
+        {reason === 'invalid_link' && (
+          <p className="mt-4 rounded-sm border border-state-err/30 bg-state-err/5 px-3 py-2 text-xs text-state-err">
+            Sign-in link expired or invalid. Request a new one below.
+          </p>
+        )}
         {sent && (
           <p className="mt-4 rounded-sm border border-state-ok/30 bg-state-ok/5 px-3 py-2 text-xs text-state-ok">
             If that address is invited, a sign-in link has been sent.

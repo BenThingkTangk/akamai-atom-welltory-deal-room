@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getServerSupabase } from '@/lib/supabase/server';
+import { getPublicDealId } from '@/lib/publicDealLookup';
 import { submitMeetingRequest } from './actions';
 import type { PublishedBriefingPayload } from '@/lib/types';
 
@@ -12,13 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default async function MeetingRequestPage({ searchParams }: { searchParams: { slot?: string; sent?: string; other?: string } }) {
+  const dealId = await getPublicDealId('welltory');
   const sb = getServerSupabase();
-  const { data: deal } = await sb.from('deals').select('id').eq('slug', 'welltory').single();
-  const { data: published } = await sb
-    .from('published_briefing')
-    .select('snapshot')
-    .eq('deal_id', deal?.id)
-    .maybeSingle();
+  const { data: published } = dealId
+    ? await sb
+        .from('published_briefing')
+        .select('snapshot')
+        .eq('deal_id', dealId)
+        .maybeSingle()
+    : { data: null };
   const snapshot = published?.snapshot as PublishedBriefingPayload | null;
   const slots = snapshot?.meeting.slots ?? [];
   const sent = searchParams.sent === '1';

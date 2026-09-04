@@ -1,9 +1,11 @@
 import { Card } from '@/components/Shell';
 import { computeScenario, DISCLAIMER } from '@/lib/commercials';
+import { getServerSupabase } from '@/lib/supabase/server';
 
 export const metadata = { title: 'Commercials — Private Deal Workspace' };
+export const dynamic = 'force-dynamic';
 
-export default function AdminCommercialsPage({
+export default async function AdminCommercialsPage({
   searchParams,
 }: {
   searchParams: {
@@ -11,8 +13,26 @@ export default function AdminCommercialsPage({
     transition?: string; services?: string; comarketing?: string; baseline?: string;
   };
 }) {
-  const low = num(searchParams.low, 30000);
-  const high = num(searchParams.high, 40000);
+  // Read modeling defaults from deal_internal_assumptions so no dollar amounts
+  // are hard-coded in the component. Anything invalid falls back to zero and
+  // the header shows an em-dash — the modeler still works, we just refuse to
+  // ship a baked-in figure into the JS chunk.
+  const sb = getServerSupabase();
+  const { data: deal } = await sb.from('deals').select('id').eq('slug', 'welltory').single();
+  const { data: assumptions } = await sb
+    .from('deal_internal_assumptions')
+    .select('key, value_json')
+    .eq('deal_id', deal?.id ?? '00000000-0000-0000-0000-000000000000');
+  const rangeRow = assumptions?.find((r) => r.key === 'monthly_modeled_range');
+  const rangeJson = rangeRow?.value_json as { low_usd?: number; high_usd?: number } | null | undefined;
+  const defaultLow = rangeJson?.low_usd ?? 0;
+  const defaultHigh = rangeJson?.high_usd ?? 0;
+  const modeledRangeLabel = defaultLow > 0 && defaultHigh > 0
+    ? `\u2248 $${Math.round(defaultLow / 1000)}K\u2013$${Math.round(defaultHigh / 1000)}K/mo`
+    : 'range not yet configured';
+
+  const low = num(searchParams.low, defaultLow);
+  const high = num(searchParams.high, defaultHigh);
   const term = ([12, 24, 36] as const).includes(num(searchParams.term, 12) as 12 | 24 | 36)
     ? (num(searchParams.term, 12) as 12 | 24 | 36)
     : 12;
@@ -42,7 +62,7 @@ export default function AdminCommercialsPage({
         <p className="eyebrow">Commercial modeler · internal only</p>
         <h1 className="mt-2 text-h2 font-semibold tracking-tight">Scenario band</h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-mute">
-          Model approximately $30K–$40K/mo. Delayed billing, overlap support,
+          Model {modeledRangeLabel}. Delayed billing, overlap support,
           transition credits, or buyout consideration require approval.
         </p>
       </header>

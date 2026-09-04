@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServerSupabase, getServiceSupabase } from '@/lib/supabase/server';
+import { getPublicDealId } from '@/lib/publicDealLookup';
 import { validateMeetingRequest } from '@/lib/meetingRequest';
 import { rateLimit } from '@/lib/rateLimit';
 import { writeAudit } from '@/lib/audit';
@@ -29,22 +30,23 @@ export async function submitMeetingRequest(formData: FormData) {
     redirect('/meeting/request?sent=1');
   }
 
-  const sb = getServerSupabase();
-  const { data: deal } = await sb.from('deals').select('id').eq('slug', 'welltory').single();
-  if (!deal) redirect('/meeting/request?sent=1');
+  const dealId = await getPublicDealId('welltory');
+  if (!dealId) redirect('/meeting/request?sent=1');
 
   // Verify the chosen slot exists AND is approved AND still in the future.
-  const { data: slot } = await sb
+  // deal_meeting_slots is not anon-readable (RLS: members only), so use the
+  // service client here — we still enforce approved+future gates below.
+  const svc = getServiceSupabase();
+  const { data: slot } = await svc
     .from('deal_meeting_slots')
     .select('id, approved, starts_at_utc')
     .eq('id', parsed.value.slot_id)
-    .eq('deal_id', deal.id)
+    .eq('deal_id', dealId)
     .maybeSingle();
   if (!slot || !slot.approved || Date.parse(slot.starts_at_utc) <= Date.now()) {
     // Slot invalid — record as pending with note and no slot binding.
-    const svc = getServiceSupabase();
     await svc.from('meeting_requests').insert({
-      deal_id: deal.id,
+      deal_id: dealId,
       name: parsed.value.name,
       work_email: parsed.value.work_email,
       role_title: parsed.value.role_title,
@@ -57,11 +59,10 @@ export async function submitMeetingRequest(formData: FormData) {
     redirect('/meeting/request?sent=1');
   }
 
-  const svc = getServiceSupabase();
   const { data: inserted } = await svc
     .from('meeting_requests')
     .insert({
-      deal_id: deal.id,
+      deal_id: dealId,
       name: parsed.value.name,
       work_email: parsed.value.work_email,
       role_title: parsed.value.role_title,
@@ -75,7 +76,7 @@ export async function submitMeetingRequest(formData: FormData) {
     .single();
 
   await writeAudit({
-    deal_id: deal.id,
+    deal_id: dealId,
     actor_user_id: null,
     actor_email: parsed.value.work_email,
     action: 'meeting.request_create',

@@ -6,6 +6,15 @@ export const metadata = { title: 'Overview — Private Deal Workspace' };
 export default async function AdminOverviewPage() {
   const sb = getServerSupabase();
   const { data: deal } = await sb.from('deals').select('*').eq('slug', 'welltory').single();
+  const { data: assumptions } = await sb
+    .from('deal_internal_assumptions')
+    .select('key, value_json')
+    .eq('deal_id', deal?.id);
+  const rangeRow = assumptions?.find((r) => r.key === 'monthly_modeled_range');
+  const rangeJson = rangeRow?.value_json as { low_usd?: number; high_usd?: number } | null | undefined;
+  const modeledRange = rangeJson && rangeJson.low_usd != null && rangeJson.high_usd != null
+    ? `$${Math.round(rangeJson.low_usd / 1000)}K\u2013$${Math.round(rangeJson.high_usd / 1000)}K / mo`
+    : '\u2014';
   const { data: sections } = await sb
     .from('deal_sections')
     .select('category, field_key, workflow_status, visibility, updated_at')
@@ -62,7 +71,7 @@ export default async function AdminOverviewPage() {
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between border-b border-line pb-2"><dt className="text-ink-mute">Customer</dt><dd>Welltory</dd></div>
             <div className="flex justify-between border-b border-line pb-2"><dt className="text-ink-mute">Incumbent</dt><dd>Cloudflare</dd></div>
-            <div className="flex justify-between border-b border-line pb-2"><dt className="text-ink-mute">Modeled range</dt><dd className="font-mono">$30K–$40K / mo</dd></div>
+            <div className="flex justify-between border-b border-line pb-2"><dt className="text-ink-mute">Modeled range</dt><dd className="font-mono">{modeledRange}</dd></div>
             <div className="flex justify-between border-b border-line pb-2"><dt className="text-ink-mute">Primary blocker</dt><dd>Migration burden</dd></div>
             <div className="flex justify-between"><dt className="text-ink-mute">Strategic expansion</dt><dd className="text-right">APIs, healthcare readiness, co-marketing</dd></div>
           </dl>

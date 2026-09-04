@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServerSupabase } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/rateLimit';
+import { originFromHeaders } from '@/lib/origin';
 
 /**
  * Magic-link request handler.
@@ -31,20 +32,21 @@ export async function requestMagicLink(formData: FormData) {
   const sb = getServerSupabase();
   // signInWithOtp with shouldCreateUser=false so we don't auto-create accounts.
   // We accept the response silently either way.
+  const base = originFromHeaders(h);
   await sb.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: false,
-      emailRedirectTo: absoluteUrl('/admin'),
+      // Send users to /auth/callback so we can exchange the PKCE code for a
+      // session. The callback then redirects into /admin, which enforces
+      // membership and role. Using the request origin (instead of
+      // NEXT_PUBLIC_APP_URL) keeps this working across every host: local dev,
+      // Vercel Preview URLs, and eventually the production admin host.
+      emailRedirectTo: new URL('/auth/callback', base).toString(),
     },
   });
 
   redirect('/admin/login?sent=1');
-}
-
-function absoluteUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  return new URL(path, base).toString();
 }
 
 function hash(s: string): string {
