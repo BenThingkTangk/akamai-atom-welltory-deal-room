@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ring: 0 87 255;
+}
+
+html {
+  font-feature-settings: 'ss01', 'cv11', 'cv02';
+}
+
+body {
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus rings — WCAG-aware, keyboard only. */
+:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin dividers */
+.hr {
+  height: 1px;
+  background: theme('colors.line.DEFAULT');
+}
+
+/* Editorial mono-eyebrow */
+.eyebrow {
+  font-family: theme('fontFamily.mono');
+  font-size: theme('fontSize.micro[0]');
+  line-height: theme('fontSize.micro[1].lineHeight');
+  letter-spacing: theme('fontSize.micro[1].letterSpacing');
+  text-transform: uppercase;
+  color: theme('colors.ink.mute');
+}
+
+/* Original abstract edge-network visual — pure CSS/SVG, no Akamai assets */
+.edge-mesh {
+  position: relative;
+  overflow: hidden;
+}
+.edge-mesh::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(600px 300px at 20% 30%, rgba(0, 188, 212, 0.10), transparent 60%),
+    radial-gradient(500px 260px at 80% 70%, rgba(0, 87, 255, 0.08), transparent 60%);
+  pointer-events: none;
+}
