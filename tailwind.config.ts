@@ -31,8 +31,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Inter', 'Helvetica', 'Arial', 'sans-serif'],
-        display: ['ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['var(--font-display)', 'ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       fontSize: {
@@ -50,6 +50,34 @@ const config: Config = {
       boxShadow: {
         elev1: '0 1px 2px rgba(10,18,36,0.04), 0 2px 6px rgba(10,18,36,0.04)',
         elev2: '0 4px 12px rgba(10,18,36,0.06), 0 12px 32px rgba(10,18,36,0.06)',
+        elev3: '0 8px 24px rgba(10,18,36,0.08), 0 24px 64px rgba(10,18,36,0.10)',
+        glow: '0 0 0 1px rgba(0, 87, 255, 0.14), 0 8px 24px rgba(0, 87, 255, 0.12)',
+        ring: '0 0 0 4px rgba(0, 87, 255, 0.14)',
+      },
+      keyframes: {
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'aurora': {
+          '0%,100%': { transform: 'translate3d(0,0,0) scale(1)' },
+          '50%': { transform: 'translate3d(-3%,2%,0) scale(1.05)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both',
+        'fade-in': 'fade-in 500ms ease-out both',
+        'aurora-slow': 'aurora 14s ease-in-out infinite',
+        'aurora-fast': 'aurora 9s ease-in-out infinite',
+        'shimmer': 'shimmer 2.4s linear infinite',
       },
     },
   },

@@ -36,11 +36,15 @@ export default async function BriefingPage() {
 
 function Unavailable() {
   return (
-    <main className="mx-auto grid min-h-screen max-w-md place-items-center px-6 text-center">
-      <div>
-        <p className="eyebrow">Private briefing</p>
-        <h1 className="mt-3 text-h2 font-semibold tracking-tight">Not currently available</h1>
-        <p className="mt-3 text-sm text-ink-mute">
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-accent-deep px-6 text-center text-white">
+      <div className="aurora" aria-hidden />
+      <div className="grid-bg absolute inset-0 opacity-30" aria-hidden />
+      <div className="relative z-10 max-w-md animate-fade-up">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-cyan">Private briefing</p>
+        <h1 className="mt-4 font-display text-[clamp(2rem,3.6vw,3rem)] font-normal leading-[1.05] tracking-[-0.015em]">
+          Not currently <em className="not-italic italic text-accent-cyan">available</em>.
+        </h1>
+        <p className="mt-5 text-base leading-relaxed text-white/70">
           This briefing is not currently published. Please contact your Akamai
           representative for access.
         </p>
